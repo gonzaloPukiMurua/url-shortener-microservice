@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const app = express();
 const mongoose = require('mongoose');
 
@@ -18,6 +19,7 @@ db.once('open', () => {
 //Schema and Model creation
 const urlSchema = new mongoose.Schema({
   originalURL : String,
+  shortURL : String
 });
 
 const urlModel = new mongoose.model('urlShort', urlSchema);
@@ -26,7 +28,7 @@ const urlModel = new mongoose.model('urlShort', urlSchema);
 const port = process.env.PORT || 3000;
 
 app.use(cors());
-
+app.use(bodyParser.urlencoded({ extended : false }));
 app.use('/public', express.static(`${process.cwd()}/public`));
 
 app.get('/', (req, res) => {
@@ -50,11 +52,14 @@ const findByURL = (url, done) => {
 };
 
 app.post('/api/shorturl', (req, res) => {
-  const urlToShort = req.params.url;
-  res.redirect('/api/:shorturl');
+  const {url} = req.body;
+  console.log(url);
+
+  res.redirect('/');
 });
 
 app.get('/api/:shorturl', (req, res) => {
+  const {originalURL} = req.params;
   const query = {
     "original_url":"https://www.youtube.com/watch?v=ciDw3-Lp1kI",
     "short_url":15368
